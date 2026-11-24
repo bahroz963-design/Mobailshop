@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سیستەمی دووکانی مووبایل — دۆلار و دینار</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-2: #273549;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --buy: #f59e0b;
+      --sell: #22c55e;
+      --profit: #38bdf8;
+      --warranty: #a855f7;
+      --danger: #ef4444;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 12px;
+    }
+
+    h2, h3, h4 { margin: 0 0 10px 0; }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .date-badge {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* پوختەی ئەمڕۆ بە دۆلار و دینار */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .stat-card span {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .stat-line {
+      font-size: 13px;
+      font-weight: bold;
+      line-height: 1.45;
+    }
+    .stat-card.sell .stat-line { color: var(--sell); }
+    .stat-card.buy .stat-line { color: var(--buy); }
+    .stat-card.profit .stat-line { color: var(--profit); }
+
+    /* گەڕانی خێرا */
+    .search-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .search-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 14px;
+    }
+    .search-results { margin-top: 10px; }
+
+    /* تابەکان */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    @media (min-width: 640px) {
+      .tabs { grid-template-columns: repeat(5, 1fr); }
+    }
+    .tab-btn {
+      padding: 10px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #052e22;
+      border-color: var(--accent);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .field-label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+    .row-2 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .row-2 input, .row-2 select { margin-top: 0; }
+
+    input, select, button.primary-btn {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+    input, select {
+      background: var(--card-2);
+      color: var(--text);
+    }
+    button.primary-btn {
+      background: var(--accent);
+      color: #052e22;
+      font-weight: bold;
+      border: none;
+      margin-top: 14px;
+      cursor: pointer;
+    }
+
+    .brand-pills {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .pill.active {
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #fff;
+    }
+
+    .item-card {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .item-main { flex: 1; }
+    .item-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .item-title {
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .item-meta {
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-top: 5px;
+      line-height: 1.55;
+    }
+    .item-price {
+      font-weight: bold;
+      color: #38bdf8;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+    .thumb {
+      width: 74px;
+      height: 74px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-top: 8px;
+      display: block;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 6px;
+      margin-left: 4px;
+    }
+    .badge-brand { background: #1d4ed8; color: #dbeafe; }
+    .badge-warranty { background: #581c87; color: #f3e8ff; }
+    .badge-warn { background: #7f1d1d; color: #fecaca; }
+    .badge-ok { background: #14532d; color: #bbf7d0; }
+
+    .del-btn {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .backup-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .sec-btn {
+      padding: 9px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <h2>سیستەمی دووکانی مووبایل</h2>
+    <div class="date-badge" id="todayLabel"></div>
+  </div>
+
+  <!-- کۆی فرۆش، کڕین، و قازانجی ئەمڕۆ بە دۆلار و دینار -->
+  <div class="summary-grid">
+    <div class="stat-card sell">
+      <span>فرۆشی ئەمڕۆ</span>
+      <div class="stat-line" id="todaySellSummary">0$ / 0 د.ع</div>
+    </div>
+    <div class="stat-card buy">
+      <span>کڕینی ئەمڕۆ</span>
+      <div class="stat-line" id="todayBuySummary">0$ / 0 د.ع</div>
+    </div>
+    <div class="stat-card profit">
+      <span>قازانجی ئەمڕۆ</span>
+      <div class="stat-line" id="todayProfitSummary">0$ / 0 د.ع</div>
+    </div>
+  </div>
+
+  <!-- گەڕانی خێرا -->
+  <div class="search-box">
+    <input
+      id="quickSearchInput"
+      class="search-input"
+      type="text"
+      placeholder="گەڕانی خێرا: سریاڵ / IMEI، ناوی کڕیار، فرۆشیار، مۆدێل، یان زەمان..."
+      oninput="renderSearchResults()"
+    />
+    <div id="searchResults" class="search-results hidden"></div>
+  </div>
+
+  <!-- بەشە سەرەکییەکان -->
+  <div class="tabs">
+    <button id="tab-buy" class="tab-btn active" onclick="switchSection('buy')">کڕینی مووبایل</button>
+    <button id="tab-sell" class="tab-btn" onclick="switchSection('sell')">فرۆشتنی مووبایل</button>
+    <button id="tab-warranty" class="tab-btn" onclick="switchSection('warranty')">زەمانی مووبایل</button>
+    <button id="tab-brands" class="tab-btn" onclick="switchSection('brands')">براندەکان</button>
+    <button id="tab-acc" class="tab-btn" onclick="switchSection('acc')">ئێکسسوارات</button>
+  </div>
+
+  <!-- ١. کڕینی مووبایل -->
+  <section id="sec-buy">
+    <div class="card">
+      <h3>تۆمارکردنی مووبایلی کڕدراو (ئەمڕۆ)</h3>
+
+      <label class="field-label">براندی مووبایل</label>
+      <select id="bBrand" class="brand-select"></select>
+
+      <input id="bModel" type="text" placeholder="مۆدێلی مووبایل" />
+      <input id="bSeller" type="text" placeholder="ناوی فرۆشیار (کە مووبایلەکەی پێ فرۆشتوویت)" />
+      <input id="bSerial" type="text" placeholder="سریاڵی مووبایل / IMEI" />
+
+      <div class="row-2">
+        <input id="bPrice" type="number" placeholder="نرخی کڕین" />
+        <select id="bCurr">
+          <option value="USD">دۆلار ($)</option>
+          <option value="IQD">دینار (د.ع)</option>
+        </select>
+      </div>
+
+      <label class="field-label">وێنەی تەسکەرە / ناسنامە یان مووبایل (بۆ کەسی جێگای سیقە نەبوو)</label>
+      <input id="bIdPhoto" type="file" accept="image/*" />
+
+      <button class="primary-btn" onclick="addBuyRecord()">زیادکردن بۆ کڕدراوەکانی ئەمڕۆ</button>
+    </div>
+
+    <div class="card">
+      <h3>مووبایلە کڕدراوەکانی ئەمڕۆ</h3>
+      <div id="buyList"></div>
+    </div>
+  </section>
+
+  <!-- ٢. فرۆشتنی مووبایل -->
+  <section id="sec-sell" class="hidden">
+    <div class="card">
+      <h3>تۆمارکردنی مووبایلی فرۆشراو (ئەمڕۆ)</h3>
+
+      <label class="field-label">براندی مووبایل</label>
+      <select id="sBrand" class="brand-select"></select>
+
+      <input id="sModel" type="text" placeholder="مۆدێلی مووبایل" />
+      <input id="sCustomer" type="text" placeholder="ناوی کڕیار" />
+      <input id="sSeller" type="text" placeholder="ناوی فرۆشیار" />
+      <input id="sSerial" type="text" placeholder="سریاڵی مووبایل / IMEI" />
+
+      <div class="row-2">
+        <input id="sCost" type="number" placeholder="نرخی کڕین (بۆ قازانج)" />
+        <select id="sCurr">
+          <option value="USD">دۆلار ($)</option>
+          <option value="IQD">دینار (د.ع)</option>
+        </select>
+      </div>
+
+      <input id="sPrice" type="number" placeholder="نرخی فرۆشتن" />
+
+      <button class="primary-btn" onclick="addSellRecord()">تۆمارکردنی فرۆشتن بۆ ئەمڕۆ</button>
+    </div>
+
+    <div class="card">
+      <h3>مووبایلە فرۆشراوەکانی ئەمڕۆ</h3>
+      <div id="sellList"></div>
+    </div>
+  </section>
+
+  <!-- ٣. زەمانی مووبایل بۆ کڕیار -->
+  <section id="sec-warranty" class="hidden">
+    <div class="card">
+      <h3>تۆمارکردنی زەمانی مووبایل بۆ کڕیار</h3>
+
+      <label class="field-label">براندی مووبایل</label>
+      <select id="wBrand" class="brand-select"></select>
+
+      <input id="wCustomer" type="text" placeholder="ناوی کڕیار" />
+      <input id="wPhone" type="text" placeholder="ژمارەی مووبایلی کڕیار (ئارەزوومەندانە)" />
+      <input id="wModel" type="text" placeholder="مۆدێلی مووبایل" />
+      <input id="wSerial" type="text" placeholder="سریاڵی مووبایل / IMEI" />
+
+      <label class="field-label">ماوەی زەمان</label>
+      <select id="wDays">
+        <option value="7">7 ڕۆژ زەمان</option>
+        <option value="14">14 ڕۆژ زەمان</option>
+        <option value="30" selected>30 ڕۆژ (1 مانگ) زەمان</option>
+        <option value="90">90 ڕۆژ (3 مانگ) زەمان</option>
+        <option value="180">180 ڕۆژ (6 مانگ) زەمان</option>
+        <option value="365">365 ڕۆژ (1 ساڵ) زەمان</option>
+      </select>
+
+      <input id="wNote" type="text" placeholder="تێبینی زەمان (بۆ نموونە: شاشە و بۆرد بە مەرجی شکان و ئاو نەبوون)" />
+
+      <button class="primary-btn" onclick="addWarranty()">دەرکردنی زەمان بۆ کڕیار</button>
+    </div>
+
+    <div class="card">
+      <h3>لیستی زەمانی مووبایلەکان</h3>
+      <div id="warrantyList"></div>
+    </div>
+  </section>
+
+  <!-- ٤. براندەکان -->
+  <section id="sec-brands" class="hidden">
+    <div class="card">
+      <h3>زیادکردنی براندی نوێ</h3>
+      <input id="newBrandName" type="text" placeholder="ناوی براند (بۆ نموونە: Google Pixel، Nothing)" />
+      <label class="field-label">وێنەی تایبەتی براند (ئارەزوومەندانە)</label>
+      <input id="newBrandImg" type="file" accept="image/*" />
+      <button class="primary-btn" onclick="addBrand()">زیادکردنی براند</button>
+    </div>
+
+    <div class="card">
+      <h3>جیاکردنەوەی مووبایلەکان بەپێی براند</h3>
+      <div class="brand-pills" id="brandFilterPills"></div>
+      <div id="brandFilteredList"></div>
+    </div>
+  </section>
+
+  <!-- ٥. ئێکسسوارات (درع، کەڤەر، کەلە شەحن، وایەر شەحن، ئێرفۆنی وایەر و بلوتوس) -->
+  <section id="sec-acc" class="hidden">
+    <div class="card">
+      <h3>کۆگا، نرخ، و وێنەی ئێکسسوارات</h3>
+
+      <label class="field-label">جۆری ئێکسسوارات</label>
+      <select id="aCategory">
+        <option value="درع">درع</option>
+        <option value="کەڤەر">کەڤەر</option>
+        <option value="کەلە شەحن">کەلە شەحن</option>
+        <option value="وایەر شەحن">وایەر شەحن</option>
+        <option value="ئێرفۆنی وایەر">ئێرفۆنی وایەر</option>
+        <option value="ئێرفۆنی بلوتوس">ئێرفۆنی بلوتوس</option>
+      </select>
+
+      <input id="aName" type="text" placeholder="ناو یان مۆدێل (بۆ نموونە: کەلە شەحنی 20W / ئێرفۆنی بلوتوس)" />
+
+      <div class="row-2">
+        <input id="aPrice" type="number" placeholder="نرخی فرۆشتن" />
+        <select id="aCurr">
+          <option value="USD">دۆلار ($)</option>
+          <option value="IQD">دینار (د.ع)</option>
+        </select>
+      </div>
+
+      <input id="aHave" type="number" placeholder="چەندمان هەیە لە دووکان؟" />
+      <input id="aNeed" type="number" placeholder="چەندمان پێویستە بۆ کڕینەوە؟" />
+
+      <label class="field-label">وێنەی تایبەتی کاڵا (ئەگەر بتەوێت وێنەی ڕاستەقینە دابنێیت)</label>
+      <input id="aPhoto" type="file" accept="image/*" />
+
+      <button class="primary-btn" onclick="addAccessory()">تۆمارکردنی کاڵا</button>
+    </div>
+
+    <div class="card">
+      <h3>لیستی ئێکسسوارات (هەبوو، پێویست، و نرخ)</h3>
+      <div id="accList"></div>
+    </div>
+  </section>
+
+  <!-- باکئەپ -->
+  <div class="card">
+    <h4>پاشەکەوتکردن و گواستنەوەی داتا</h4>
+    <div class="backup-grid">
+      <button class="sec-btn" onclick="exportBackup()">کۆپیکردنی داتا</button>
+      <button class="sec-btn" onclick="importBackup()">هێنانەوەی داتا</button>
+    </div>
+  </div>
+
+  <script>
+    const TODAY = new Date().toISOString().slice(0, 10);
+    document.getElementById("todayLabel").innerText = "بەروار: " + TODAY;
+
+    // وێنەی ڤێکتۆری (SVG) جێگیر بۆ براندەکان
+    const BRAND_SVG = {
+      "Apple / iPhone": `<svg width="26" height="26" viewBox="0 0 24 24" fill="#f8fafc"><path d="M16.4 12.8c0-2.1 1.7-3.1 1.8-3.2-1-1.4-2.5-1.6-3-1.7-1.3-.1-2.5.8-3.1.8-.6 0-1.6-.8-2.7-.7-1.4 0-2.7.8-3.4 2-1.5 2.5-.4 6.2 1 8.2.7 1 1.5 2.1 2.6 2 1-.1 1.4-.7 2.7-.7 1.2 0 1.6.7 2.7.7 1.1 0 1.8-1 2.5-2 .8-1.2 1.1-2.3 1.1-2.4-.1 0-2.4-.9-2.4-3zM14.2 6.5c.6-.7 1-1.7.9-2.7-.9 0-2 .6-2.6 1.3-.5.6-1 1.6-.9 2.6 1 .1 2-.5 2.6-1.2z"/></svg>`,
+      "Samsung": `<svg width="34" height="22" viewBox="0 0 64 24"><rect width="64" height="24" rx="6" fill="#1d4ed8"/><text x="32" y="16" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">SAMSUNG</text></svg>`,
+      "Honor": `<svg width="34" height="22" viewBox="0 0 64 24"><rect width="64" height="24" rx="6" fill="#0284c7"/><text x="32" y="16" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">HONOR</text></svg>`,
+      "Xiaomi / Redmi": `<svg width="34" height="22" viewBox="0 0 64 24"><rect width="64" height="24" rx="6" fill="#ea580c"/><text x="32" y="16" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">XIAOMI</text></svg>`,
+      "Huawei": `<svg width="34" height="22" viewBox="0 0 64 24"><rect width="64" height="24" rx="6" fill="#dc2626"/><text x="32" y="16" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">HUAWEI</text></svg>`
+    };
+
+    // وێنەی SVG جێگیر بۆ ئێکسسواراتەکان
+    const ACC_SVG = {
+      "درع": `<svg width="34" height="34" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#1e3a8a"/><path d="M18 7l9 4v6c0 6.2-3.8 10.7-9 12-5.2-1.3-9-5.8-9-12v-6l9-4z" fill="#60a5fa"/></svg>`,
+      "کەڤەر": `<svg width="34" height="34" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#065f46"/><rect x="11" y="7" width="14" height="22" rx="3" fill="#34d399"/><circle cx="15" cy="11" r="1.5" fill="#065f46"/></svg>`,
+      "کەلە شەحن": `<svg width="34" height="34" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#78350f"/><rect x="12" y="12" width="12" height="14" rx="2" fill="#fbbf24"/><rect x="14" y="8" width="2" height="4" fill="#fde68a"/><rect x="20" y="8" width="2" height="4" fill="#fde68a"/></svg>`,
+      "وایەر شەحن": `<svg width="34" height="34" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#312e81"/><path d="M10 24c4-10 12 6 16-10" stroke="#a5b4fc" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+      "ئێرفۆنی وایەر": `<svg width="34" height="34" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#134e4a"/><circle cx="13" cy="15" r="4" fill="#2dd4bf"/><path d="M13 19v6c0 3 6 3 6-4" stroke="#99f6e4" stroke-width="2" fill="none"/></svg>`,
+      "ئێرفۆنی بلوتوس": `<svg width="34" height="34" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#581c87"/><rect x="10" y="13" width="16" height="12" rx="4" fill="#e879f9"/><circle cx="15" cy="10" r="2.5" fill="#f5d0fe"/><circle cx="21" cy="10" r="2.5" fill="#f5d0fe"/></svg>`
+    };
+
+    const DEFAULT_BRANDS = [
+      { name: "Apple / iPhone", logo: "" },
+      { name: "Samsung", logo: "" },
+      { name: "Honor", logo: "" },
+      { name: "Xiaomi / Redmi", logo: "" },
+      { name: "Huawei", logo: "" }
+    ];
+
+    let state = {
+      brands: JSON.parse(localStorage.getItem("mshop_v4_brands") || "null") || DEFAULT_BRANDS,
+      buys: JSON.parse(localStorage.getItem("mshop_v4_buys") || "[]"),
+      sells: JSON.parse(localStorage.getItem("mshop_v4_sells") || "[]"),
+      warranties: JSON.parse(localStorage.getItem("mshop_v4_warranties") || "[]"),
+      accs: JSON.parse(localStorage.getItem("mshop_v4_accs") || "[]")
+    };
+
+    let selectedBrandFilter = "هەمووی";
+
+    function persist() {
+      localStorage.setItem("mshop_v4_brands", JSON.stringify(state.brands));
+      localStorage.setItem("mshop_v4_buys", JSON.stringify(state.buys));
+      localStorage.setItem("mshop_v4_sells", JSON.stringify(state.sells));
+      localStorage.setItem("mshop_v4_warranties", JSON.stringify(state.warranties));
+      localStorage.setItem("mshop_v4_accs", JSON.stringify(state.accs));
+      renderAll();
+    }
+
+    function formatMoney(amount, curr) {
+      const val = Number(amount || 0).toLocaleString();
+      return curr === "IQD" ? `${val} د.ع` : `${val}$`;
+    }
+
+    function addDaysToDate(dateStr, days) {
+      const d = new Date(dateStr + "T00:00:00");
+      d.setDate(d.getDate() + Number(days || 0));
+      return d.toISOString().slice(0, 10);
+    }
+
+    function getBrandVisual(brandName, customLogo) {
+      if (customLogo) {
+        return `<img src="${customLogo}" alt="${escapeHtml(brandName)}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;" />`;
+      }
+      if (BRAND_SVG[brandName]) return BRAND_SVG[brandName];
+      return `<svg width="28" height="22" viewBox="0 0 48 22"><rect width="48" height="22" rx="5" fill="#334155"/><text x="24" y="15" fill="#f8fafc" font-size="9" font-weight="bold" text-anchor="middle">${escapeHtml(brandName.slice(0, 6))}</text></svg>`;
+    }
+
+    function getAccVisual(category, customPhoto) {
+      if (customPhoto) {
+        return `<img class="thumb" src="${customPhoto}" alt="${escapeHtml(category)}" />`;
+      }
+      return ACC_SVG[category] || ACC_SVG["کەڤەر"];
+    }
+
+    function readImageFile(fileInput) {
+      return new Promise((resolve) => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return resolve("");
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => resolve("");
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function switchSection(sec) {
+      ["buy", "sell", "warranty", "brands", "acc"].forEach((s) => {
+        document.getElementById("sec-" + s).classList.toggle("hidden", s !== sec);
+        document.getElementById("tab-" + s).classList.toggle("active", s === sec);
+      });
+    }
+
+    function populateBrandDropdowns() {
+      document.querySelectorAll(".brand-select").forEach((sel) => {
+        const prev = sel.value;
+        sel.innerHTML = state.brands
+          .map((b) => `<option value="${escapeHtml(b.name)}">${escapeHtml(b.name)}</option>`)
+          .join("");
+        if (prev && state.brands.some((b) => b.name === prev)) sel.value = prev;
+      });
+    }
+
+    function updateTodayTotals() {
+      const todaySells = state.sells.filter((x) => x.date === TODAY);
+      const todayBuys = state.buys.filter((x) => x.date === TODAY);
+
+      let sellUsd = 0, sellIqd = 0;
+      let buyUsd = 0, buyIqd = 0;
+      let profitUsd = 0, profitIqd = 0;
+
+      todaySells.forEach((item) => {
+        const price = Number(item.price || 0);
+        const cost = Number(item.cost || 0);
+        if (item.curr === "IQD") {
+          sellIqd += price;
+          profitIqd += (price - cost);
+        } else {
+          sellUsd += price;
+          profitUsd += (price - cost);
+        }
+      });
+
+      todayBuys.forEach((item) => {
+        const price = Number(item.price || 0);
+        if (item.curr === "IQD") buyIqd += price;
+        else buyUsd += price;
+      });
+
+      document.getElementById("todaySellSummary").innerHTML = `${sellUsd.toLocaleString()}$<br/>${sellIqd.toLocaleString()} د.ع`;
+      document.getElementById("todayBuySummary").innerHTML = `${buyUsd.toLocaleString()}$<br/>${buyIqd.toLocaleString()} د.ع`;
+      document.getElementById("todayProfitSummary").innerHTML = `${profitUsd.toLocaleString()}$<br/>${profitIqd.toLocaleString()} د.ع`;
+    }
+
+    function renderSearchResults() {
+      const q = document.getElementById("quickSearchInput").value.trim().toLowerCase();
+      const box = document.getElementById("searchResults");
+
+      if (!q) {
+        box.classList.add("hidden");
+        box.innerHTML = "";
+        return;
+      }
+
+      const combined = [
+        ...state.sells.map((x) => ({ ...x, kind: "فرۆشراو" })),
+        ...state.buys.map((x) => ({ ...x, kind: "کڕدراو" })),
+        ...state.warranties.map((x) => ({ ...x, kind: `زەمان (${x.days} ڕۆژ)` }))
+      ].filter((item) => {
+        const blob = [item.serial, item.customer, item.seller, item.model, item.brand, item.warrantyEnd]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return blob.includes(q);
+      });
+
+      box.classList.remove("hidden");
+      box.innerHTML = combined.length
+        ? combined
+            .map(
+              (m) => `
+            <div class="item-card">
+              <div class="item-main">
+                <div class="item-title">${escapeHtml(m.model)} (${escapeHtml(m.kind)})</div>
+                <div class="item-meta">
+                  سریاڵ / IMEI: <strong>${escapeHtml(m.serial)}</strong> | بەروار: ${m.date}<br/>
+                  ${m.customer ? `کڕیار: <strong>${escapeHtml(m.customer)}</strong> | ` : ""}
+                  ${m.seller ? `فرۆشیار: ${escapeHtml(m.seller)} | ` : ""}
+                  ${m.price !== undefined ? `نرخ: ${formatMoney(m.price, m.curr)}` : ""}
+                  ${m.warrantyEnd ? `کۆتایی زەمان: <strong>${m.warrantyEnd}</strong>` : ""}
+                </div>
+              </div>
+            </div>`
+            )
+            .join("")
+        : `<div class="item-meta">هیچ ئەنجامێک بۆ «${escapeHtml(q)}» نەدۆزرایەوە.</div>`;
+    }
+
+    async function addBuyRecord() {
+      const brand = document.getElementById("bBrand").value;
+      const model = document.getElementById("bModel").value.trim();
+      const seller = document.getElementById("bSeller").value.trim();
+      const serial = document.getElementById("bSerial").value.trim();
+      const price = Number(document.getElementById("bPrice").value || 0);
+      const curr = document.getElementById("bCurr").value;
+      const idPhoto = await readImageFile(document.getElementById("bIdPhoto"));
+      if (!model || !serial) return;
+
+      state.buys.unshift({
+        id: Date.now(),
+        date: TODAY,
+        brand,
+        model,
+        seller: seller || "نەنووسراوە",
+        serial,
+        price,
+        curr,
+        idPhoto
+      });
+
+      ["bModel", "bSeller", "bSerial", "bPrice", "bIdPhoto"].forEach((id) => {
+        document.getElementById(id).value = "";
+      });
+      persist();
+    }
+
+    function addSellRecord() {
+      const brand = document.getElementById("sBrand").value;
+      const model = document.getElementById("sModel").value.trim();
+      const customer = document.getElementById("sCustomer").value.trim();
+      const seller = document.getElementById("sSeller").value.trim();
+      const serial = document.getElementById("sSerial").value.trim();
+      const cost = Number(document.getElementById("sCost").value || 0);
+      const price = Number(document.getElementById("sPrice").value || 0);
+      const curr = document.getElementById("sCurr").value;
+      if (!model || !customer || !serial) return;
+
+      state.sells.unshift({
+        id: Date.now(),
+        date: TODAY,
+        brand,
+        model,
+        customer,
+        seller: seller || "نەنووسراوە",
+        serial,
+        cost,
+        price,
+        curr
+      });
+
+      ["sModel", "sCustomer", "sSeller", "sSerial", "sCost", "sPrice"].forEach((id) => {
+        document.getElementById(id).value = "";
+      });
+      persist();
+    }
+
+    function addWarranty() {
+      const brand = document.getElementById("wBrand").value;
+      const customer = document.getElementById("wCustomer").value.trim();
+      const phone = document.getElementById("wPhone").value.trim();
+      const model = document.getElementById("wModel").value.trim();
+      const serial = document.getElementById("wSerial").value.trim();
+      const days = Number(document.getElementById("wDays").value || 30);
+      const note = document.getElementById("wNote").value.trim();
+      if (!customer || !model || !serial) return;
+
+      const warrantyEnd = addDaysToDate(TODAY, days);
+      state.warranties.unshift({
+        id: Date.now(),
+        date: TODAY,
+        warrantyEnd,
+        days,
+        brand,
+        customer,
+        phone,
+        model,
+        serial,
+        note
+      });
+
+      ["wCustomer", "wPhone", "wModel", "wSerial", "wNote"].forEach((id) => {
+        document.getElementById(id).value = "";
+      });
+      persist();
+    }
+
+    async function addBrand() {
+      const name = document.getElementById("newBrandName").value.trim();
+      const logo = await readImageFile(document.getElementById("newBrandImg"));
+      if (!name) return;
+
+      const existing = state.brands.find((b) => b.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        if (logo) existing.logo = logo;
+      } else {
+        state.brands.push({ name, logo });
+      }
+      document.getElementById("newBrandName").value = "";
+      document.getElementById("newBrandImg").value = "";
+      persist();
+    }
+
+    async function addAccessory() {
+      const category = document.getElementById("aCategory").value;
+      const name = document.getElementById("aName").value.trim();
+      const price = Number(document.getElementById("aPrice").value || 0);
+      const curr = document.getElementById("aCurr").value;
+      const have = Number(document.getElementById("aHave").value || 0);
+      const need = Number(document.getElementById("aNeed").value || 0);
+      const photo = await readImageFile(document.getElementById("aPhoto"));
+      if (!name) return;
+
+      state.accs.unshift({
+        id: Date.now(),
+        category,
+        name,
+        price,
+        curr,
+        have,
+        need,
+        photo
+      });
+
+      ["aName", "aPrice", "aHave", "aNeed", "aPhoto"].forEach((id) => {
+        document.getElementById(id).value = "";
+      });
+      persist();
+    }
+
+    function deleteRecord(listKey, id) {
+      state[listKey] = state[listKey].filter((item) => item.id !== id);
+      persist();
+    }
+
+    function renderBuyList() {
+      const todayBuys = state.buys.filter((x) => x.date === TODAY);
+      const brandMap = Object.fromEntries(state.brands.map((b) => [b.name, b.logo]));
+
+      document.getElementById("buyList").innerHTML = todayBuys.length
+        ? todayBuys
+            .map(
+              (b) => `
+            <div class="item-card">
+              <div class="item-main">
+                <div class="item-head">
+                  ${getBrandVisual(b.brand, brandMap[b.brand])}
+                  <div class="item-title">${escapeHtml(b.model)}</div>
+                </div>
+                <span class="badge badge-brand">${escapeHtml(b.brand)}</span>
+                <div class="item-price">نرخی کڕین: ${formatMoney(b.price, b.curr)}</div>
+                <div class="item-meta">
+                  فرۆشیار: ${escapeHtml(b.seller)}<br/>
+                  سریاڵ / IMEI: ${escapeHtml(b.serial)}
+                </div>
+                ${b.idPhoto ? `<img class="thumb" src="${b.idPhoto}" alt="وێنەی تەسکەرە یان ئامێر" />` : ""}
+              </div>
+              <button class="del-btn" onclick="deleteRecord('buys', ${b.id})">سڕینەوە</button>
+            </div>`
+            )
+            .join("")
+        : "<p>هیچ مووبایلێک بۆ ئەمڕۆ لە بەشی کڕین تۆمار نەکراوە.</p>";
+    }
+
+    function renderSellList() {
+      const todaySells = state.sells.filter((x) => x.date === TODAY);
+      const brandMap = Object.fromEntries(state.brands.map((b) => [b.name, b.logo]));
+
+      document.getElementById("sellList").innerHTML = todaySells.length
+        ? todaySells
+            .map((s) => {
+              const profit = Number(s.price || 0) - Number(s.cost || 0);
+              return `
+            <div class="item-card">
+              <div class="item-main">
+                <div class="item-head">
+                  ${getBrandVisual(s.brand, brandMap[s.brand])}
+                  <div class="item-title">${escapeHtml(s.model)}</div>
+                </div>
+                <span class="badge badge-brand">${escapeHtml(s.brand)}</span>
+                <div class="item-price">
+                  فرۆشتن: ${formatMoney(s.price, s.curr)} |
+                  قازانج: ${formatMoney(profit, s.curr)}
+                </div>
+                <div class="item-meta">
+                  کڕیار: ${escapeHtml(s.customer)} | فرۆشیار: ${escapeHtml(s.seller)}<br/>
+                  سریاڵ / IMEI: ${escapeHtml(s.serial)}
+                </div>
+              </div>
+              <button class="del-btn" onclick="deleteRecord('sells', ${s.id})">سڕینەوە</button>
+            </div>`;
+            })
+            .join("")
+        : "<p>هیچ مووبایلێک بۆ ئەمڕۆ لە بەشی فرۆشتن تۆمار نەکراوە.</p>";
+    }
+
+    function renderWarrantyList() {
+      document.getElementById("warrantyList").innerHTML = state.warranties.length
+        ? state.warranties
+            .map((w) => {
+              const active = w.warrantyEnd >= TODAY;
+              return `
+            <div class="item-card">
+              <div class="item-main">
+                <div class="item-title">${escapeHtml(w.customer)} — ${escapeHtml(w.model)}</div>
+                <span class="badge badge-brand">${escapeHtml(w.brand)}</span>
+                <span class="badge badge-warranty">${w.days} ڕۆژ زەمان</span>
+                <span class="badge ${active ? "badge-ok" : "badge-warn"}">
+                  ${active ? `چالاک تا ${w.warrantyEnd}` : `بەسەرچوو لە ${w.warrantyEnd}`}
+                </span>
+                <div class="item-meta">
+                  سریاڵ / IMEI: <strong>${escapeHtml(w.serial)}</strong><br/>
+                  دەرچوون: ${w.date} | کۆتایی: ${w.warrantyEnd}
+                  ${w.phone ? `<br/>مووبایل: ${escapeHtml(w.phone)}` : ""}
+                  ${w.note ? `<br/>مەرجی زەمان: ${escapeHtml(w.note)}` : ""}
+                </div>
+              </div>
+              <button class="del-btn" onclick="deleteRecord('warranties', ${w.id})">سڕینەوە</button>
+            </div>`;
+            })
+            .join("")
+        : "<p>هیچ زەمانێک تۆمار نەکراوە.</p>";
+    }
+
+    function renderBrandsSection() {
+      const pillNames = ["هەمووی", ...state.brands.map((b) => b.name)];
+      document.getElementById("brandFilterPills").innerHTML = pillNames
+        .map((name) => {
+          const bObj = state.brands.find((b) => b.name === name);
+          const icon = name === "هەمووی" ? "" : getBrandVisual(name, bObj ? bObj.logo : "");
+          return `<button class="pill ${selectedBrandFilter === name ? "active" : ""}" onclick="setBrandFilter('${escapeJs(name)}')">${icon}<span>${escapeHtml(name)}</span></button>`;
+        })
+        .join("");
+
+      const records = [
+        ...state.sells.map((x) => ({ ...x, kind: "فرۆشراو" })),
+        ...state.buys.map((x) => ({ ...x, kind: "کڕدراو" }))
+      ].filter((item) => selectedBrandFilter === "هەمووی" || item.brand === selectedBrandFilter);
+
+      document.getElementById("brandFilteredList").innerHTML = records.length
+        ? records
+            .map(
+              (m) => `
+            <div class="item-card">
+              <div class="item-main">
+                <div class="item-title">${escapeHtml(m.model)} (${escapeHtml(m.kind)})</div>
+                <span class="badge badge-brand">${escapeHtml(m.brand)}</span>
+                <div class="item-price">${formatMoney(m.price, m.curr)}</div>
+                <div class="item-meta">
+                  بەروار: ${m.date} | سریاڵ: ${escapeHtml(m.serial)}<br/>
+                  ${m.customer ? `کڕیار: ${escapeHtml(m.customer)} | ` : ""}فرۆشیار: ${escapeHtml(m.seller)}
+                </div>
+              </div>
+            </div>`
+            )
+            .join("")
+        : "<p>هیچ مووبایلێک بۆ ئەم براندە نەدۆزرایەوە.</p>";
+    }
+
+    function setBrandFilter(name) {
+      selectedBrandFilter = name;
+      renderBrandsSection();
+    }
+
+    function renderAccessories() {
+      document.getElementById("accList").innerHTML = state.accs.length
+        ? state.accs
+            .map(
+              (a) => `
+            <div class="item-card">
+              <div class="item-main">
+                <div class="item-head">
+                  ${getAccVisual(a.category, a.photo)}
+                  <div>
+                    <div class="item-title">[${escapeHtml(a.category)}] ${escapeHtml(a.name)}</div>
+                    <div class="item-price">نرخ: ${formatMoney(a.price, a.curr)}</div>
+                  </div>
+                </div>
+                <div class="item-meta">هەبوو لە دووکان: <strong>${a.have}</strong> دانە</div>
+                ${
+                  a.need > 0
+                    ? `<span class="badge badge-warn">پێویستە بکڕدرێت: ${a.need} دانە</span>`
+                    : `<span class="badge badge-ok">پێویستی بە کڕین نییە</span>`
+                }
+              </div>
+              <button class="del-btn" onclick="deleteRecord('accs', ${a.id})">سڕینەوە</button>
+            </div>`
+            )
+            .join("")
+        : "<p>هیچ کاڵایەک لە بەشی ئێکسسوارات تۆمار نەکراوە.</p>";
+    }
+
+    function renderAll() {
+      populateBrandDropdowns();
+      updateTodayTotals();
+      renderBuyList();
+      renderSellList();
+      renderWarrantyList();
+      renderBrandsSection();
+      renderAccessories();
+      renderSearchResults();
+    }
+
+    function exportBackup() {
+      const payload = JSON.stringify(state);
+      navigator.clipboard?.writeText(payload);
+      alert("داتاکان کۆپی کران؛ دەتوانیت لە نۆتێکدا هەڵیانگریت.");
+    }
+
+    function importBackup() {
+      const raw = prompt("کۆدی داتای باکئەپ لێرە دابنێ:");
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed.brands) state.brands = parsed.brands;
+        if (parsed.buys) state.buys = parsed.buys;
+        if (parsed.sells) state.sells = parsed.sells;
+        if (parsed.warranties) state.warranties = parsed.warranties;
+        if (parsed.accs) state.accs = parsed.accs;
+        persist();
+        alert("داتاکان بە سەرکەوتوویی هێنرانەوە.");
+      } catch (err) {
+        alert("کۆدی داتاکە هەڵەیە.");
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeJs(str) {
+      return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
